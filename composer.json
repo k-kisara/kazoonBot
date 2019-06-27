@@ -1,0 +1,6 @@
+{
+    "require": {
+        "vlucas/phpdotenv": "^3.4",
+        "mpyw/twistoauth": "^3.5"
+    }
+}
