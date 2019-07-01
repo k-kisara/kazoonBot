@@ -1,8 +1,11 @@
 <?php
-// OAuth Script Import
-require('TwistOAuth.phar');
+// Load libraries
+require __DIR__ . '/vendor/autoload.php';
 
-$dotenv = new DotEnv\DotEnv('./.env');
+// Make an alias "Client" instead of "mpyw\Cowitter\Client"
+use mpyw\Cowitter\Client;
+
+$dotenv = Dotenv\Dotenv::create(__DIR__);
 $dotenv->load();
 
 // Consumer Key
@@ -14,9 +17,26 @@ $access_token = getenv('TWITTER_ACCESS_TOKEN');
 // Access Token Secret
 $access_token_secret = getenv('TWITTER_ACCESS_TOKEN_SECRET');
 
-$connection = new TwistOAuth(
-  $consumer_key, $consumer_secret, $access_token, $access_token_secret
-);
+$client = new Client([
+  $consumer_key, $consumer_secret, $access_token, $access_token_secret,
+]);
+
+try {
+
+  // Send a POST request to Twitter
+  $status = $client->post('statuses/update', [
+      'status' => 'I like 🍣',
+  ]);
+
+  // Report your tweet permalink URL
+  echo "Tweeted: https://twitter.com/{$status->user->screen_name}/status/{$status->id_str}\n";
+
+} catch (\RuntimeException $e) {
+
+  // Jump here if an errors has occurred
+  echo "Error: {$e->getMessage()}\n";
+
+}
 
 /**
  * TODO
@@ -27,6 +47,6 @@ $connection = new TwistOAuth(
  *   3. Compore users in followers of this bot and the List
  *   4. (If some users unfollow this bot, remove them from the List)
  * 2. Second cron
- *   1. Monitor tweets in the List. If a sentence which includes "RT" is
+ *   1. Monitor tweets in the List. If a sentence which includes "みみぺん" is
  *      tweeted, retweet it.
  */
