@@ -16,6 +16,8 @@ $consumer_secret = getenv('TWITTER_API_SECRET');
 $access_token = getenv('TWITTER_ACCESS_TOKEN');
 // Access Token Secret
 $access_token_secret = getenv('TWITTER_ACCESS_TOKEN_SECRET');
+// User ID
+$user_id = getenv('TWITTER_USER_ID');
 
 $client = new Client([
   $consumer_key, $consumer_secret, $access_token, $access_token_secret,
@@ -23,13 +25,22 @@ $client = new Client([
 
 try {
 
-  // Send a POST request to Twitter
-  $status = $client->post('statuses/update', [
-      'status' => 'I like 🍣',
+  $lists = $client->get('lists/list', [
+    'user_id' => $user_id,
   ]);
 
-  // Report your tweet permalink URL
-  echo "Tweeted: https://twitter.com/{$status->user->screen_name}/status/{$status->id_str}\n";
+  $retweet_list_id = $lists[0]->id_str;
+
+  $response = $client->get('lists/statuses', [
+    'list_id' => $retweet_list_id,
+    'count' => 75,
+    'q' => 'みみぺん',
+  ]);
+
+  foreach ($response as $tweet) {
+    echo $tweet->text;
+    echo "¥n";
+  }
 
 } catch (\RuntimeException $e) {
 
