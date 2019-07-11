@@ -18,8 +18,6 @@ $access_token = getenv('TWITTER_ACCESS_TOKEN');
 $access_token_secret = getenv('TWITTER_ACCESS_TOKEN_SECRET');
 // User ID
 $user_id = getenv('TWITTER_USER_ID');
-// Retweet List ID
-// $retweet_list_id = getenv('TWITTER_RETWEET_LIST_ID');
 
 $client = new Client([
   $consumer_key, $consumer_secret, $access_token, $access_token_secret,
@@ -32,17 +30,17 @@ try {
     'user_id' => $user_id,
   ]);
 
-  $retweet_list_id = (int)$lists[0]->id;
+  $retweet_list_id = $lists[0]->id_str;
 
-  echo $retweet_list_id;
-
-  $responses = $client->get('lists/statuses', [
-      'list_id' => $retweet_list_id,
-      'count' => 5,
+  $response = $client->get('lists/statuses', [
+    'list_id' => $retweet_list_id,
+    'count' => 75,
+    'q' => 'みみぺん',
   ]);
 
-  foreach ($responses as $res) {
-      echo "text: {$res->text}\n";
+  foreach ($response as $tweet) {
+    echo $tweet->text;
+    echo "¥n";
   }
 
 } catch (\RuntimeException $e) {
