@@ -34,13 +34,15 @@ try {
 
   $response = $client->get('lists/statuses', [
     'list_id' => $retweet_list_id,
-    'count' => 75,
-    'q' => 'みみぺん',
+    'count' => 100,
   ]);
 
   foreach ($response as $tweet) {
-    echo $tweet->text;
-    echo "¥n";
+    if(strpos($tweet->text, 'みみぺん') !== false) {
+      // TODO: リツイートする
+      $status = $client->post("statuses/retweet/$tweet->id_str", []);
+      echo "Retweet: $status->text";
+    }
   }
 
 } catch (\RuntimeException $e) {
