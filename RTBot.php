@@ -34,7 +34,7 @@ try {
 
   $response = $client->get('lists/statuses', [
     'list_id' => $retweet_list_id,
-    'count' => 100,
+    'count' => 25,
   ]);
 
   foreach ($response as $tweet) {
