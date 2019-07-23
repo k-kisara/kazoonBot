@@ -24,13 +24,15 @@ try {
     'user_id' => $user_id,
   ]);
 
+  echo "lists/list OK\n";
   $retweet_list_id = $lists[0]->id_str;
 
   // get users who Retweeted fixed tweet(1)
   $retweeted_users = $client->get('statuses/retweeters/ids', [
-    'id' => '1151671141796216832',
+    'id' => '1152960898358640640',
   ]);
 
+  echo "statuses/retweeters/ids OK\n";
   $retweeted_users_ids = $retweeted_users->ids;
 
   // get followers(2)
@@ -38,34 +40,37 @@ try {
     'user_id' => $user_id,
   ]);
 
+  echo "followers/ids OK\n";
   $followers_ids = $followers->ids;
 
   // push member into Retweet list who matches (1) and (2)
   foreach ($retweeted_users_ids as $r_id) {
     if (in_array($r_id, $followers_ids)) {
+      echo "みつかったにゃき！\n";
       $create_status = $client->post('lists/members/create', [
         'list_id' => $retweet_list_id,
         'user_id' => $r_id,
       ]);
-      echo "Created: {$create_status->user->name}\n";
+      echo "Created: {$r_id}\n";
     }
   }
 
   // get Retweet list members
-  $retweet_list_members = $client->get('list/members', [
+  $retweet_list_members = $client->get('lists/members', [
     'list_id' => $retweet_list_id,
   ]);
 
+  echo "lists/members\n";
   $retweet_list_users = $retweet_list_members->users;
 
   // Listメンバーがフォローを外していたら、リストから削除する
   foreach ($retweet_list_users as $user) {
-    if (!in_array($user->id, $followers_ids) || !in_array($user_id, $retweeted_users_ids)) {
+    if (!in_array($user->id, $followers_ids)) {
       $destroyed_status = $client->post('lists/members/destroy', [
         'list_id' => $retweet_list_id,
         'user_id' => $user->id,
       ]);
-      echo "Destroyed: {$destroyed_status->user->name}\n";
+      echo "Destroyed: {$user->id}\n";
     }
   }
 

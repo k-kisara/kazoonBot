@@ -18,6 +18,8 @@ $access_token = getenv('TWITTER_ACCESS_TOKEN');
 $access_token_secret = getenv('TWITTER_ACCESS_TOKEN_SECRET');
 // User ID
 $user_id = getenv('TWITTER_USER_ID');
+// Retweet count
+$retweet_count = 0;
 
 $client = new Client([
   $consumer_key, $consumer_secret, $access_token, $access_token_secret,
@@ -32,16 +34,25 @@ try {
 
   $retweet_list_id = $lists[0]->id_str;
 
+  echo $list[0]->name;
+
   $response = $client->get('lists/statuses', [
     'list_id' => $retweet_list_id,
-    'count' => 25,
+    'count' => 100,
+    'tweet_mode' => 'extended'
   ]);
 
   foreach ($response as $tweet) {
-    if(strpos($tweet->text, 'みみぺん') !== false) {
-      // TODO: リツイートする
+    echo "{$tweet->full_text}\n";
+    if (strpos($tweet->full_text, 'みみぺん') !== false) {
       $status = $client->post("statuses/retweet/$tweet->id_str", []);
-      echo "Retweet: $status->text";
+      echo "Retweet: https://twitter.com/{$status->user->screen_name}/status/{$status->id_str}\n";
+      $retweet_count++;
+    }
+
+    if ($retweet_count === 16) {
+      echo "Retweet count reached upper limit.\n";
+      break;
     }
   }
 
@@ -51,16 +62,3 @@ try {
   echo "Error: {$e->getMessage()}\n";
 
 }
-
-/**
- * TODO
- * 0. Get credencials and rewrite .env
- * 1. First cron
- *   1. Find users who follow this account(@kazoonBot) and retweet my fix tweet
- *   2. If some users are find by 1., add them to "Retweet List"
- *   3. Compore users in followers of this bot and the List
- *   4. (If some users unfollow this bot, remove them from the List)
- * 2. Second cron
- *   1. Monitor tweets in the List. If a sentence which includes "みみぺん" is
- *      tweeted, retweet it.
- */
